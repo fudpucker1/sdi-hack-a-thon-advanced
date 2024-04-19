@@ -102,7 +102,7 @@ const App = () => {
   }, [raining]);
 
   const makeItRain = () => {
-    setRepeatCount(1); // Reset repeat count to 1
+    setRepeatCount(1);
     setRaining(prevRaining => !prevRaining);
   }
 
