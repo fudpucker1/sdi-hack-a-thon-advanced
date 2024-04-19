@@ -5,6 +5,7 @@ import "./App.css"
 const App = () => {
   const [objects, setObjects] = useState([]);
   const [repeatCount, setRepeatCount] = useState(1);
+  const [raining, setRaining] = useState(false);
   const canvasRef = useRef(null);
   const engine = useRef(Matter.Engine.create());
   const render = useRef(null);
@@ -80,9 +81,30 @@ const App = () => {
     const canvas = canvasRef.current;
     const { width } = canvas.getBoundingClientRect();
     const x = Math.random() * width;
-    const y = -50;
+    const y = 0;
     return { x, y };
   };
+
+  useEffect(() => {
+    if (raining) {
+      const shapes = ['circle', 'square', 'rectangle', 'triangle', 'pentagon', 'hexagon'];
+
+      const addRandomShape = () => {
+        if (raining) {
+          const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+          addShape(randomShape);
+          setTimeout(addRandomShape, 50);
+        }
+      };
+
+      addRandomShape();
+    }
+  }, [raining]);
+
+  const makeItRain = () => {
+    setRepeatCount(1); // Reset repeat count to 1
+    setRaining(prevRaining => !prevRaining);
+  }
 
   const addShape = (shapeType) => {
     const { world } = engine.current;
@@ -91,22 +113,22 @@ const App = () => {
       let shape;
       switch (shapeType) {
         case 'circle':
-          shape = Matter.Bodies.circle(x, y, 25, { restitution: 0.8 });
+          shape = Matter.Bodies.circle(x, y, 25, { restitution: 1 });
           break;
         case 'square':
-          shape = Matter.Bodies.rectangle(x, y, 50, 50, { restitution: 0.8 });
+          shape = Matter.Bodies.rectangle(x, y, 50, 50, { restitution: 1 });
           break;
         case 'rectangle':
-          shape = Matter.Bodies.rectangle(x, y, 50, 30, { restitution: 0.8 });
+          shape = Matter.Bodies.rectangle(x, y, 50, 30, { restitution: 1 });
           break;
         case 'triangle':
-          shape = Matter.Bodies.polygon(x, y, 3, 30, { restitution: 0.8 });
+          shape = Matter.Bodies.polygon(x, y, 3, 30, { restitution: 1 });
           break;
         case 'pentagon':
-          shape = Matter.Bodies.polygon(x, y, 5, 30, { restitution: 0.8 });
+          shape = Matter.Bodies.polygon(x, y, 5, 30, { restitution: 1 });
           break;
         case 'hexagon':
-          shape = Matter.Bodies.polygon(x, y, 6, 30, { restitution: 0.8 });
+          shape = Matter.Bodies.polygon(x, y, 6, 30, { restitution: 1 });
           break;
         default:
           return;
@@ -122,7 +144,7 @@ const App = () => {
   };
 
   const handleChangeRepeatCount = (event) => {
-    setRepeatCount(parseInt(event.target.value, 10));
+    setRepeatCount(event.target.value);
   };
 
   return (
@@ -136,8 +158,9 @@ const App = () => {
           <button onClick={() => addShape('triangle')}>Add Triangle</button>
           <button onClick={() => addShape('pentagon')}>Add Pentagon</button>
           <button onClick={() => addShape('hexagon')}>Add Hexagon</button>
+          {!raining ? <button onClick={makeItRain}>Make It Rain</button> : <button onClick={makeItRain}>Stop Rain</button>}
           <button onClick={clearObjects}>Clear</button>
-          <select value={repeatCount} onChange={handleChangeRepeatCount}>
+          <select className="shapeCount" value={repeatCount} onChange={handleChangeRepeatCount}>
             {[...Array(20)].map((_, index) => (
               <option key={index + 1} value={index + 1}>{index + 1}</option>
             ))}
